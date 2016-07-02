@@ -1,5 +1,5 @@
 {
-    "name":        "doctrine/doctrine-module",
+    "name":        "skillfish/doctrine-module",
     "description": "Zend Framework 3 Module that provides Doctrine basic functionality required for ORM and ODM modules",
     "type":        "library",
     "license":     "MIT",
