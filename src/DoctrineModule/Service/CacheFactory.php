@@ -24,7 +24,7 @@ use RuntimeException;
 use Doctrine\Common\Cache\MemcacheCache;
 use Doctrine\Common\Cache\MemcachedCache;
 use Doctrine\Common\Cache\RedisCache;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
 
 /**
  * Cache ServiceManager factory
@@ -42,10 +42,10 @@ class CacheFactory extends AbstractFactory
      *
      * @throws RuntimeException
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         /** @var $options \DoctrineModule\Options\Cache */
-        $options = $this->getOptions($serviceLocator, 'cache');
+        $options = $this->getOptions($container, 'cache');
         $class   = $options->getClass();
 
         if (!$class) {
@@ -54,8 +54,8 @@ class CacheFactory extends AbstractFactory
 
         $instance = $options->getInstance();
 
-        if (is_string($instance) && $serviceLocator->has($instance)) {
-            $instance = $serviceLocator->get($instance);
+        if (is_string($instance) && $container->has($instance)) {
+            $instance = $container->get($instance);
         }
 
         switch ($class) {

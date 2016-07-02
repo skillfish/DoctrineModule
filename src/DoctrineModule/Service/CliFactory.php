@@ -22,9 +22,8 @@ namespace DoctrineModule\Service;
 use DoctrineModule\Version;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\ServiceManager;
+use Zend\ServiceManager\Factory\FactoryInterface;
+use Interop\Container\ContainerInterface;
 
 /**
  * CLI Application ServiceManager factory responsible for instantiating a Symfony CLI application
@@ -48,19 +47,19 @@ class CliFactory implements FactoryInterface
     /**
      * @var array
      */
-    protected $commands = array();
+    protected $commands = [];
 
     /**
-     * @param  ServiceLocatorInterface                  $sm
+     * @param  ContainerInterface $container
      * @return \Zend\EventManager\EventManagerInterface
      */
-    public function getEventManager(ServiceLocatorInterface $sm)
+    public function getEventManager(ContainerInterface $container)
     {
         if (null === $this->events) {
             /* @var $events \Zend\EventManager\EventManagerInterface */
-            $events = $sm->get('EventManager');
+            $events = $container->get('EventManager');
 
-            $events->addIdentifiers(array(__CLASS__, 'doctrine'));
+            $events->addIdentifiers([__CLASS__, 'doctrine']);
 
             $this->events = $events;
         }
@@ -72,7 +71,7 @@ class CliFactory implements FactoryInterface
      * {@inheritDoc}
      * @return Application
      */
-    public function createService(ServiceLocatorInterface $sl)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         $cli = new Application;
         $cli->setName('DoctrineModule Command Line Interface');
@@ -82,7 +81,7 @@ class CliFactory implements FactoryInterface
         $cli->setAutoExit(false);
 
         // Load commands using event
-        $this->getEventManager($sl)->trigger('loadCli.post', $cli, array('ServiceManager' => $sl));
+        $this->getEventManager($container)->trigger('loadCli.post', $cli, ['ServiceManager' => $container]);
 
         return $cli;
     }
